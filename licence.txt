@@ -1,0 +1,28 @@
+IU Internationale Hochschule
+
+Wind Turbine Data Stream Simulator
+Course
+
+DLBDSMTP01 — From Model to Production
+
+Big Data Masterclass · IU International University of Applied Sciences
+
+Academic Supervisors
+
+Prof. Dr.-Ing. Anna Androvitsanea
+
+Prof. Dr. Christian Müller-Kett
+
+Developed by
+
+Juan Carlos Laverde
+
+Student ID: UPS10797707 · Academic Year 2025–2026
+
+Description
+
+This application is a real-time simulator for wind turbine sensor data streams. It supports the creation and management of wind parks, generating continuous multi-sensor readings — temperature, noise level, relative humidity, and wind speed — to facilitate the monitoring, archival, and early detection of potential equipment anomalies.
+
+Rights Notice
+
+The author donates all rights over this work to IU Internationale Hochschule for any academic purpose the institution considers appropriate. The source code may be used, adapted, or redistributed freely for academic and educational purposes.

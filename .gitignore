@@ -1,0 +1,23 @@
+# Virtual environment
+.venv/
+
+# Pipeline-generated outputs (recreated by `python pipeline.py` or `docker build`)
+data/
+model/
+source_repository/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Test / coverage artefacts
+.coverage
+.pytest_cache/
+htmlcov/
+
+# IDE and OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
