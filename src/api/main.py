@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import joblib
-import numpy as np
+import pandas as pd
 from fastapi import Body, FastAPI, Request
 from fastapi.responses import JSONResponse
 
@@ -38,7 +38,7 @@ def _error_json(code: str, message: str, status_code: int) -> JSONResponse:
 
 
 def _run_inference(req: PredictRequest) -> PredictResponse:
-    X = np.array([[req.temperature, req.humidity, req.noise_level]])
+    X = pd.DataFrame([[req.temperature, req.humidity, req.noise_level]], columns=FEATURES)
     probability = float(_model.predict_proba(X)[0][1])
     return PredictResponse(
         turbine_id=req.turbine_id,

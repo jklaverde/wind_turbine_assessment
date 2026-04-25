@@ -10,6 +10,19 @@ dashboard that calls this API on every sensor beat.
 
 ---
 
+## Academic Context
+
+| | |
+|---|---|
+| **Course** | DLBDSMTP01 — From Model to Production |
+| **Programme** | Big Data Masterclass |
+| **Institution** | IU International University of Applied Sciences |
+| **Academic Year** | 2025–2026 |
+| **Supervisors** | Prof. Dr.-Ing. Anna Androvitsanea · Prof. Dr. Christian Müller-Kett |
+| **Author** | Juan Carlos Laverde (Student ID: UPS10797707) |
+
+---
+
 ## How It Works
 
 ```
@@ -82,6 +95,7 @@ wind_turbine_assessment/
 ├── pipeline.py                    # orchestrator: Phase 1 (wrangle) + Phase 2 (train)
 ├── Dockerfile
 ├── requirements.txt
+├── .gitignore
 └── source_repository/
     └── kaggle/                    # raw Kaggle CSV files (unmodified)
 ```
@@ -90,10 +104,10 @@ wind_turbine_assessment/
 
 ## Prerequisites
 
-| Requirement | Version |
-|-------------|---------|
-| Python      | 3.11+   |
-| Docker      | 24+     |
+| Requirement    | Version                                  |
+| -------------- | ---------------------------------------- |
+| Python         | 3.11+                                    |
+| Docker         | 24+                                      |
 | Kaggle account | (for first download only — cached after) |
 
 ---
@@ -163,6 +177,9 @@ uvicorn src.api.main:app --port 8001 --reload
 
 The API is now available at `http://localhost:8001`.
 
+> To suppress the per-request `INFO` log noise add `--log-level error` — only
+> errors and critical messages will be printed.
+
 ---
 
 ## Quickstart — Docker
@@ -181,10 +198,10 @@ immediately — no manual pipeline step needed.
 
 Interactive documentation is available once the server is running:
 
-| Interface | URL |
-|-----------|-----|
-| Swagger UI | `http://localhost:8001/docs` |
-| ReDoc | `http://localhost:8001/redoc` |
+| Interface  | URL                           |
+| ---------- | ----------------------------- |
+| Swagger UI | `http://localhost:8001/docs`  |
+| ReDoc      | `http://localhost:8001/redoc` |
 
 ### `GET /api/v1/health`
 
@@ -222,13 +239,13 @@ curl -X POST http://localhost:8001/api/v1/predict \
 
 **Request fields**
 
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| `turbine_id` | string | non-empty | Unique turbine identifier |
+| Field                   | Type   | Constraints           | Description                |
+| ----------------------- | ------ | --------------------- | -------------------------- |
+| `turbine_id`            | string | non-empty             | Unique turbine identifier  |
 | `measurement_timestamp` | string | `yyyymmdd_hhmmss` UTC | Time the reading was taken |
-| `temperature` | float | ≥ 0.0 | Generator temperature (°C) |
-| `humidity` | float | 0.0 – 100.0 | Relative humidity (%RH) |
-| `noise_level` | float | ≥ 0.0 | Noise level (dB) |
+| `temperature`           | float  | ≥ 0.0                 | Generator temperature (°C) |
+| `humidity`              | float  | 0.0 – 100.0           | Relative humidity (%RH)    |
+| `noise_level`           | float  | ≥ 0.0                 | Noise level (dB)           |
 
 **Response `200 OK`**
 
@@ -242,11 +259,11 @@ curl -X POST http://localhost:8001/api/v1/predict \
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `potential_anomaly` | boolean | `true` if the model predicts a failure |
-| `probability` | float | Failure probability [0.0, 1.0] |
-| `response_timestamp` | string | UTC time the prediction was generated |
+| Field                | Type    | Description                            |
+| -------------------- | ------- | -------------------------------------- |
+| `potential_anomaly`  | boolean | `true` if the model predicts a failure |
+| `probability`        | float   | Failure probability [0.0, 1.0]         |
+| `response_timestamp` | string  | UTC time the prediction was generated  |
 
 ---
 
@@ -323,12 +340,12 @@ All errors follow a uniform envelope:
 }
 ```
 
-| Status | Code | Trigger |
-|--------|------|---------|
-| `422` | `VALIDATION_ERROR` | Missing field or value out of range |
-| `422` | `BATCH_SIZE_EXCEEDED` | Batch exceeds `MAX_BATCH_SIZE` |
-| `503` | `MODEL_NOT_READY` | Model file failed to load at startup |
-| `500` | `PREDICTION_FAILED` | Unexpected error during inference |
+| Status | Code                  | Trigger                              |
+| ------ | --------------------- | ------------------------------------ |
+| `422`  | `VALIDATION_ERROR`    | Missing field or value out of range  |
+| `422`  | `BATCH_SIZE_EXCEEDED` | Batch exceeds `MAX_BATCH_SIZE`       |
+| `503`  | `MODEL_NOT_READY`     | Model file failed to load at startup |
+| `500`  | `PREDICTION_FAILED`   | Unexpected error during inference    |
 
 ---
 
@@ -336,10 +353,10 @@ All errors follow a uniform envelope:
 
 All settings are controlled via environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MODEL_PATH` | `model/wind_turbine_model.joblib` | Path to the trained model file |
-| `MAX_BATCH_SIZE` | `10000` | Maximum items per batch predict call |
+| Variable         | Default                           | Description                          |
+| ---------------- | --------------------------------- | ------------------------------------ |
+| `MODEL_PATH`     | `model/wind_turbine_model.joblib` | Path to the trained model file       |
+| `MAX_BATCH_SIZE` | `10000`                           | Maximum items per batch predict call |
 
 ---
 
@@ -390,6 +407,7 @@ startsecs=2
 ```
 
 **Call contract:**
+
 - Called synchronously on every sensor beat: `POST http://localhost:8001/api/v1/predict`
 - On failure (timeout / service unavailable): the sensor reading is saved with
   `potential_anomaly = null` and `probability = null` — the beat is never lost
@@ -406,3 +424,11 @@ on Kaggle (`mukund23/hackerearth-machine-learning-challenge`).
 Only `generator_temperature(°C)` is retained from the 22 raw columns. `humidity` and
 `noise_level` are simulated sensor columns imputed with a fixed random seed for full
 reproducibility.
+
+---
+
+## License
+
+The author donates all rights over this work to **IU Internationale Hochschule** for any
+academic purpose the institution considers appropriate. The source code may be used,
+adapted, or redistributed freely for academic and educational purposes.
