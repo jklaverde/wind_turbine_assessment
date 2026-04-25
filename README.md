@@ -182,7 +182,7 @@ The API is now available at `http://localhost:8001`.
 
 ---
 
-## Quickstart — Docker
+## Quickstart — Docker (local)
 
 ```bash
 docker build -t wind-turbine-assessment .
@@ -191,6 +191,78 @@ docker run -p 8001:8001 wind-turbine-assessment
 
 The pipeline runs automatically during `docker build`. The container starts the API
 immediately — no manual pipeline step needed.
+
+---
+
+## Deploy to a Remote Server
+
+The recommended layout on a Linux server is `/opt/wind_turbine_assessment/` —
+conventional for self-contained third-party applications. The source is only needed
+at build time; once the Docker image is built the container is self-sufficient.
+
+### 1. Transfer the project (run on your local machine)
+
+```bash
+scp -i /path/to/key.pem -r ./wind_turbine_assessment jkl@<server-ip>:/tmp/wind_turbine_assessment
+```
+
+### 2. SSH into the server
+
+```bash
+ssh -i /path/to/key.pem jkl@<server-ip>
+```
+
+### 3. Move to /opt and install Docker
+
+```bash
+sudo mv /tmp/wind_turbine_assessment /opt/wind_turbine_assessment
+
+sudo apt update && sudo apt install -y docker.io
+sudo systemctl enable --now docker
+```
+
+### 4. Set up Kaggle credentials
+
+Required only for the build step — the trained model is baked into the image
+and credentials are not needed afterwards.
+
+```bash
+mkdir -p ~/.kaggle
+nano ~/.kaggle/kaggle.json   # paste {"username":"...","key":"..."}
+chmod 600 ~/.kaggle/kaggle.json
+```
+
+### 5. Build the image
+
+```bash
+cd /opt/wind_turbine_assessment
+sudo docker build -t wind-turbine-assessment .
+```
+
+### 6. Run the container
+
+```bash
+sudo docker run -d \
+  --name wta \
+  --restart unless-stopped \
+  -p 8001:8001 \
+  wind-turbine-assessment
+```
+
+`-d` runs the container in the background so it survives when the SSH session closes.
+`--restart unless-stopped` brings it back automatically after a server reboot.
+
+### 7. Verify
+
+```bash
+sudo docker ps           # confirm the container is running
+sudo docker logs wta     # check startup output
+```
+
+The API is now reachable at `http://<server-ip>:8001`.
+
+> After a successful build you can remove `~/.kaggle/kaggle.json` from the server —
+> it is no longer needed.
 
 ---
 
